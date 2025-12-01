@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RecycleAI - Vision One</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter & JetBrains Mono Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-deep: #050505;
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-surface: rgba(255, 255, 255, 0.03);
+            --accent-glow: rgba(56, 189, 248, 0.15);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-deep);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .aurora-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.15), transparent 25%), 
+                radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.1), transparent 25%);
+            filter: blur(60px);
+            opacity: 0.8;
+            animation: pulse-aurora 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse-aurora {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.1); opacity: 0.6; }
+        }
+
+        .glass-panel {
+            background: var(--glass-surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 
+                0 0 0 1px rgba(0,0,0,0.2),
+                0 20px 40px -12px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .text-gradient {
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-6 selection:bg-emerald-500 selection:text-white">
+
+    <!-- Ambient Background -->
+    <div class="aurora-bg"></div>
+
+    <!-- Header Section -->
+    <div class="w-full max-w-5xl mx-auto flex flex-col items-center mb-10 z-10 animate-fade-in-up">
+        <div class="flex items-center gap-3 mb-6">
+            <span class="badge font-mono text-emerald-400">Beta v1.0</span>
+            <span class="badge font-mono text-gray-400">Hrushikesh G</span>
+        </div>
+        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-center mb-4">
+            <span class="text-gradient">Recycle</span><span class="text-emerald-500">AI</span>
+        </h1>
+        <p class="text-lg text-gray-500 max-w-xl text-center font-light leading-relaxed">
+            Real-time object classification engine powered by browser-based neural networks. 
+            <span class="text-gray-300">Experience the future of waste management.</span>
+        </p>
+    </div>
+
+    <!-- Main Viewport -->
+    <div class="relative w-full max-w-4xl mx-auto z-10 group">
+        
+        <!-- Hardware-like Border Container -->
+        <div class="relative rounded-2xl overflow-hidden glass-panel aspect-video transition-all duration-700 hover:shadow-[0_0_50px_-12px_rgba(16,185,129,0.2)]">
+            
+            <!-- Video Feed -->
+            <video id="webcam" autoplay muted playsinline class="absolute top-0 left-0 w-full h-full object-cover opacity-90"></video>
+            
+            <!-- AR Canvas Overlay -->
+            <canvas id="canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+
+            <!-- Loading Overlay (Skeleton State) -->
+            <div id="loading" class="absolute inset-0 bg-[#050505] z-50 flex flex-col items-center justify-center transition-opacity duration-700">
+                <div class="relative w-16 h-16 mb-6">
+                    <div class="absolute inset-0 border-t-2 border-r-2 border-emerald-500 rounded-full animate-spin"></div>
+                    <div class="absolute inset-2 border-b-2 border-l-2 border-gray-700 rounded-full animate-spin" style="animation-direction: reverse;"></div>
+                </div>
+                <p class="font-mono text-sm text-emerald-500 tracking-widest uppercase">Initializing Neural Engine</p>
+            </div>
+            
+            <!-- UI Overlays (Status Bar) -->
+            <div class="absolute bottom-6 left-6 right-6 flex justify-between items-end pointer-events-none">
+                <div class="flex flex-col gap-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <span class="font-mono text-xs text-gray-400 uppercase tracking-widest">System Active</span>
+                    </div>
+                    <div class="font-mono text-xs text-gray-600">60 FPS • COCO-SSD QUANTIZED</div>
+                </div>
+                <!-- Scanlines overlay effect for aesthetic -->
+                <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+            </div>
+        </div>
+        
+        <!-- Decorative Glow beneath -->
+        <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl blur-2xl opacity-5 group-hover:opacity-10 transition duration-1000 -z-10"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+
+    <script>
+        const video = document.getElementById('webcam');
+        const canvas = document.getElementById('canvas');
+        const loadingDiv = document.getElementById('loading');
+        const ctx = canvas.getContext('2d');
+
+        const RECYCLABLE_ITEMS = [
+            'bottle', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'book', 
+            'laptop', 'tv', 'cell phone', 'remote', 'keyboard', 'mouse', 
+            'wine glass', 'vase', 'refrigerator'
+        ];
+        
+        let model = undefined;
+
+        async function setup() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } 
+                });
+                video.srcObject = stream;
+
+                await new Promise((resolve) => {
+                    video.onloadedmetadata = () => resolve();
+                });
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                
+                model = await cocoSsd.load();
+                
+                loadingDiv.style.opacity = '0';
+                setTimeout(() => { loadingDiv.style.display = 'none'; }, 700);
+
+                detectFrame();
+            } catch (error) {
+                console.error("Initialization failed:", error);
+                loadingDiv.innerHTML = `<p class="font-mono text-red-500">CAMERA ACCESS DENIED</p>`;
+            }
+        }
+
+        async function detectFrame() {
+            if (!model) return;
+            const predictions = await model.detect(video);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+
+            
+            drawFancyBoundingBoxes(predictions);
+            requestAnimationFrame(detectFrame);
+        }
+
+        function drawFancyBoundingBoxes(predictions) {
+            predictions.forEach(prediction => {
+                const [x, y, width, height] = prediction.bbox;
+                const objectClass = prediction.class;
+                const score = prediction.score;
+
+                if (score > 0.60) {
+                    const isRecyclable = RECYCLABLE_ITEMS.includes(objectClass);
+                    const label = isRecyclable ? 'RECYCLABLE' : 'NON-RECYCLABLE';
+                    
+                    const primaryColor = isRecyclable ? '#10B981' : '#EF4444'; 
+                    const secondaryColor = isRecyclable ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+
+                    ctx.beginPath();
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = primaryColor;
+                    
+                    roundRect(ctx, x, y, width, height, 8);
+                    ctx.stroke();
+
+                    ctx.fillStyle = secondaryColor;
+                    ctx.fill();
+
+                    const text = `${label} · ${Math.round(score * 100)}%`;
+                    ctx.font = '600 12px "JetBrains Mono"';
+                    const textMetrics = ctx.measureText(text);
+                    const pad = 12;
+                    const textHeight = 24;
+                    const labelWidth = textMetrics.width + (pad * 2);
+
+                    ctx.save();
+                    ctx.shadowColor = "rgba(0,0,0,0.2)";
+                    ctx.shadowBlur = 10;
+                    ctx.fillStyle = primaryColor;
+                    
+                    roundRect(ctx, x, y - 34, labelWidth, 26, 6); 
+                    ctx.fill();
+                    ctx.restore();
+
+                    ctx.fillStyle = '#000000'; 
+                    ctx.fillText(text, x + pad, y - 17);
+                }
+            });
+        }
+
+        function roundRect(ctx, x, y, width, height, radius) {
+            if (width < 2 * radius) radius = width / 2;
+            if (height < 2 * radius) radius = height / 2;
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.arcTo(x + width, y, x + width, y + height, radius);
+            ctx.arcTo(x + width, y + height, x, y + height, radius);
+            ctx.arcTo(x, y + height, x, y, radius);
+            ctx.arcTo(x, y, x + width, y, radius);
+            ctx.closePath();
+        }
+        
+        window.onload = setup;
+    </script>
+</body>
+</html>
